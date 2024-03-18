@@ -20,7 +20,7 @@ const FriendsZone = () => {
       })
     };  
     getFriends();
-  }, [])
+  }, [dispatch, token, user]);
 
   console.log(friends)
   return (
