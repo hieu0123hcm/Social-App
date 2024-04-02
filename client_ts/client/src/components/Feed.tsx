@@ -1,33 +1,36 @@
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { Stack, Typography } from "@mui/material";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { COLORS } from "../constants/Constant";
 import { useAppDispatch, useAppSelector } from "../custom-hook/useReduxHooks";
-import { getPosts } from "../data/postsSlice";
+import { getPosts } from "../redux/data/postsSlice";
 import { Post } from "../model/post.model";
 import Error from "./CustomUI/Error";
 import Spinner from "./CustomUI/Spinner";
-import PostWidget from "./PostComponent/PostWidget";
+import PostWidget from "./PostComponent/Post";
 
 const PostsFeed = () => {
   const dispatch = useAppDispatch();
+  const [hasMore, setHasMore] = useState(true);
+
   const {
     count: totalPosts,
     page,
     limit: pageSize,
     items,
   } = useAppSelector((state) => state.posts.postItems);
+  const token = useAppSelector((state) => state.auth.token);
   const postsError = useAppSelector((state) => state.posts.postsError);
-  const isLoading = useAppSelector((state) => state.posts.postsLoading);
+
   const message = useAppSelector((state) => state.posts.message);
 
   const initFetch = useCallback(() => {
-    dispatch(getPosts({ page, pageSize }));
-  }, [dispatch, page, pageSize]);
+    dispatch(getPosts({ page, pageSize, token }));
+  }, [dispatch, page, pageSize, token]);
 
   const loadMore = () => {
-    dispatch(getPosts({ page, pageSize }));
+    dispatch(getPosts({ page, pageSize, token }));
+    items.length < totalPosts ? setHasMore(true) : setHasMore(false);
   };
 
   useEffect(() => {
@@ -43,9 +46,9 @@ const PostsFeed = () => {
         <InfiniteScroll
           dataLength={items.length}
           next={loadMore}
-          hasMore={items.length < totalPosts}
+          hasMore={hasMore}
           loader={<Spinner />}
-          endMessage={!isLoading && <CaughtUp />}
+          endMessage={<CaughtUp />}
         >
           {items.map((post: Post, index) => (
             <PostWidget
@@ -72,7 +75,7 @@ const CaughtUp = () => {
         mb: "25px",
       }}
     >
-      <CheckCircleOutlineIcon sx={{ color: COLORS.lime, fontSize: "40px" }} />
+      <CheckCircleOutlineIcon color="primary" sx={{ fontSize: "40px" }} />
       <Typography fontSize={"15px"} fontWeight={"600"}>
         You're All Caught Up
       </Typography>

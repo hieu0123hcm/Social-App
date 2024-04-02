@@ -2,7 +2,7 @@ import express from "express";
 import {
   commentAPost,
   deletePost,
-  getFeedPosts,
+  getPosts,
   getPostComments,
   getUserPosts,
   likePost,
@@ -12,7 +12,7 @@ import { verifyToken } from "../middleware/auth.js";
 const router = express.Router();
 
 /* READ */
-router.get("/", verifyToken, getFeedPosts);
+router.get("/", verifyToken, getPosts);
 router.get("/:userId/", verifyToken, getUserPosts);
 router.get("/:postId/comment", verifyToken, getPostComments);
 

@@ -1,11 +1,11 @@
 import {
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import { CustomButton } from "./CustomButton";
 
 interface Props {
   open: boolean;
@@ -28,8 +28,10 @@ const DeleteDialog = ({ open, handleClose, deletePost }: Props) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <CustomButton label="Cancel" handleClick={handleClose} />
-        <CustomButton label="Agree" handleClick={deletePost} />
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button variant="contained" onClick={deletePost}>
+          Agree
+        </Button>
       </DialogActions>
     </Dialog>
   );

@@ -3,21 +3,21 @@ import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import {
   Avatar,
   Box,
+  Button,
   Divider,
   Stack,
   Typography,
   useTheme,
 } from "@mui/material";
+import { AxiosError } from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
-import { CustomButton } from "../../components/CustomUI/CustomButton";
+import Error from "../../components/CustomUI/Error";
 import Spinner from "../../components/CustomUI/Spinner";
 import { COLORS } from "../../constants/Constant";
 import { useAppSelector } from "../../custom-hook/useReduxHooks";
 import { User } from "../../model/user.model";
-import { AxiosError } from "axios";
-import Error from "../../components/CustomUI/Error";
 import fetchData from "../../utils/fetchData";
-import Cookies from "js-cookie";
 
 interface UserInfoProps {
   userId: string;
@@ -59,14 +59,12 @@ const UserInfo = ({ userId }: UserInfoProps) => {
       });
   };
   useEffect(() => {
-    console.log(URL);
     const getUser = async () => {
       //TODO: separate the components into different files  & use Axios
       setLoading(true);
       try {
         const response = await fetchData<User>(URL, token);
         const { data } = response.data;
-        console.log(data);
         setUser(data);
         if (data.followers.includes(currentUser?._id as string)) {
           setFollowed(true);
@@ -122,12 +120,14 @@ const UserInfo = ({ userId }: UserInfoProps) => {
               </Typography>
 
               {currentUserID !== user?._id && (
-                <CustomButton
-                  label={followed ? "Unfollow" : "Follow"}
+                <Button
+                  variant={followed ? "contained" : "outlined"}
                   startIcon={followed ? <Check /> : <PersonAddAltIcon />}
-                  handleClick={handleFollowClick}
+                  onClick={handleFollowClick}
                   disabled={followButtonState}
-                />
+                >
+                  {followed ? "Unfollow" : "Follow"}
+                </Button>
               )}
             </Stack>
 

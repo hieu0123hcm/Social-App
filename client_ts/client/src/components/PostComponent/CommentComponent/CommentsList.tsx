@@ -1,29 +1,44 @@
-import { Button, List } from "@mui/material";
-import { AxiosError } from "axios";
+import { Button, List, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
-import { COLORS } from "../../../constants/Constant";
-import fetchData from "../../../utils/fetchData";
-import { useAppSelector } from "../../../custom-hook/useReduxHooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../../../custom-hook/useReduxHooks";
 import { Comment } from "../../../model/comment.model";
+import { getComment, selectComment } from "../../../redux/data/postsSlice";
 import Error from "../../CustomUI/Error";
 import Spinner from "../../CustomUI/Spinner";
 import CommentItem from "./CommentItem";
 
 interface IProps {
   postId: string;
-  newComment: boolean;
 }
 
-const CommentWidget = ({ postId, newComment }: IProps) => {
-  const token = useAppSelector((state) => state.auth.token) || "";
+const CommentWidget = ({ postId }: IProps) => {
+  const token = useAppSelector((state) => state.auth.token);
 
-  const [commentList, setCommentList] = useState<Comment[]>([]);
-  const [error, setError] = useState<string>("");
-  const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
+  const theme = useTheme();
   const [limit, setlimit] = useState(3);
   const [showMore, setShowMore] = useState(true);
 
-  const commentListLimited = commentList.slice(0, limit);
+  const dispatch = useAppDispatch();
+  const error = useAppSelector((state) => state.posts.postsError);
+  const message = useAppSelector((state) => state.posts.message);
+  const commentLoading = useAppSelector(
+    (state) => state.posts.postsLoading.getComment
+  );
+  const commentList = useAppSelector((state) => selectComment(state, postId));
+  useEffect(() => {
+    const initFetch = () => {
+      dispatch(
+        getComment({
+          postId,
+          token,
+        })
+      );
+    };
+    initFetch();
+  }, [dispatch, postId, token]);
 
   const showMoreHandler = () => {
     if (limit >= commentList.length) {
@@ -35,38 +50,24 @@ const CommentWidget = ({ postId, newComment }: IProps) => {
   };
 
   useEffect(() => {
-    const getComments = async () => {
-      setIsCommentLoading(true);
-      try {
-        const response = await fetchData<Comment[]>(
-          `http://localhost:5000/posts/${postId}/comment`,
-          token
-        );
-        const { data } = response.data;
-        setCommentList(data);
-      } catch (error) {
-        const formattedError = error as AxiosError;
-        setError(
-          (formattedError.response?.data as string) || "Error getting the data"
-        );
-      } finally {
-        setIsCommentLoading(false);
-      }
-    };
-    getComments();
-  }, [postId, token, newComment]);
+    if (limit < commentList.length) {
+      setShowMore(true);
+    }
+  }, [commentList, limit]);
+
+  const commentListLimited = commentList.slice(0, limit);
 
   return (
     <>
-      {error && <Error message={error} />}
-      {isCommentLoading ? (
+      {error && <Error message={message} />}
+      {commentLoading ? (
         <Spinner />
       ) : (
         <>
           <List sx={{ width: "100%", padding: "0", margin: "0" }}>
-            {commentListLimited.map((comment: Comment, index: number) => {
-              return <CommentItem key={index} comment={comment} />;
-            })}
+            {commentListLimited.map((comment: Comment, index) => (
+              <CommentItem key={index} {...comment} />
+            ))}
           </List>
           {showMore && (
             <Button
@@ -74,7 +75,7 @@ const CommentWidget = ({ postId, newComment }: IProps) => {
                 fontSize: "12px",
                 p: "0",
                 textTransform: "capitalize",
-                color: COLORS.blue,
+                color: theme.palette.primary.dark,
               }}
               onClick={showMoreHandler}
             >

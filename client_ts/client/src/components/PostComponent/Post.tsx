@@ -1,10 +1,7 @@
 import ClearIcon from "@mui/icons-material/Clear";
 import {
   Box,
-  Button,
-  Divider,
   IconButton,
-  InputBase,
   Paper,
   Stack,
   Typography,
@@ -14,29 +11,26 @@ import React, { useState } from "react";
 import Comment from "../../../src/assets/Icons/Comment.svg";
 import Heart from "../../../src/assets/Icons/heart.svg";
 import Hearted from "../../../src/assets/Icons/hearted.svg";
+import Quote from "../../../src/assets/Icons/“.svg";
 
-import { COLORS } from "../../constants/Constant";
 import {
   useAppDispatch,
   useAppSelector,
 } from "../../custom-hook/useReduxHooks";
-import { commentPost, likePost, removePost } from "../../data/postsSlice";
-import { Comment as CommentModel } from "../../model/comment.model";
 import { Post } from "../../model/post.model";
-import { APIResponse } from "../../model/response.model";
-import { sendComment } from "../../utils/api/sendComment";
+import { likePost, removePost } from "../../redux/data/postsSlice";
 import DeleteDialog from "../CustomUI/DeleteDialog";
-import NameLink from "../CustomUI/NameLink";
 import CustomAvatar from "../CustomUI/UserAvatar";
 import CommentWidget from "./CommentComponent/CommentsList";
 import PictureList from "./PictureList";
 import PostUserInfo from "./PostUserInfo";
+import CommentInput from "./CommentComponent/CommentInput";
+
 const PostWidget = (post: Post) => {
   const theme = useTheme();
-
   const token = useAppSelector((state) => state.auth.token);
   const user = useAppSelector((state) => state.auth.user);
-  const [comment, setComment] = useState<string>("");
+
   const loggedInUserId = user?._id || "";
 
   const likesCount = useAppSelector((state) => {
@@ -45,11 +39,10 @@ const PostWidget = (post: Post) => {
     )?.likes;
     return Object.values(likes || {}).filter((hasLiked) => hasLiked).length;
   });
-
   const isLiked = Boolean(post.likes[loggedInUserId]);
+
   const [open, setOpen] = React.useState(false);
   const [showComment, setShowComment] = useState(false);
-  const [newComment, setNewComment] = useState<boolean>(false);
 
   const handleShowComment = () => {
     setShowComment(!showComment);
@@ -65,52 +58,24 @@ const PostWidget = (post: Post) => {
 
   const dispatch = useAppDispatch();
 
-  const handleSendComment = async () => {
-    const postId = post._id;
-    if (comment !== "") {
-      const responseData: APIResponse<CommentModel> = await sendComment({
-        user,
-        token,
-        postId,
-        comment,
-      });
-      dispatch(commentPost({ postId, comments: responseData.data }));
-      setComment("");
-      setNewComment(!newComment);
-      setShowComment(true);
-    }
-  };
-
   const patchLike = async () => {
-    //TODO: separate the components into different files  & use Axios
-    const url = `http://localhost:5000/posts/${post._id}/like`;
-
-    const options = {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: loggedInUserId }),
-    };
-    const response = await fetch(url, options);
-
-    const responseData = await response.json();
-    dispatch(likePost({ postId: post._id, likes: responseData.data }));
+    dispatch(likePost({ postId: post._id, userId: loggedInUserId, token }));
   };
 
   const deletePost = async () => {
-    dispatch(removePost({ postId: post._id, userId: loggedInUserId }));
+    dispatch(removePost({ postId: post._id, userId: loggedInUserId, token }));
     handleClose();
   };
+
   return (
     <Paper
       elevation={0}
       sx={{
-        boxSizing: "border-box",
-        justifyContent: "center",
-        alignItems: "start",
-        display: "flex",
+        bgcolor: "#fff",
+        border: "1px solid #F0F6FD",
+        padding: "15px",
+        borderRadius: "30px",
+        marginBottom: "25px",
       }}
     >
       <DeleteDialog
@@ -170,88 +135,40 @@ const PostWidget = (post: Post) => {
             }}
           >
             {/* Like & Comment Icon */}
-            <Stack
-              flexDirection={"row"}
-              width={"100%"}
-              justifyContent={"start"}
-            >
+            <Stack flexDirection={"row"}>
               <IconButton onClick={patchLike}>
                 {isLiked ? <img src={Hearted} /> : <img src={Heart} />}
               </IconButton>
-              <IconButton
-                onClick={handleShowComment}
-                sx={{
-                  fontWeight: "500",
-                  color: "black",
-                }}
-              >
+              <IconButton onClick={handleShowComment}>
                 <img src={Comment} />
               </IconButton>
             </Stack>
 
             {/* Like Count */}
             <Typography color={"black"} fontSize={"14px"} fontWeight={"550"}>
-              {likesCount} likes
+              {likesCount}{" "}
+              {likesCount === 1 || likesCount === 0 ? "Like" : "Likes"}
             </Typography>
 
             {/* Post Caption */}
-            {post.caption && (
-              <Stack>
-                <NameLink
-                  name={`${post.firstName} ${post.lastName}`}
-                  userId={post.userId}
-                />
-                <Typography fontSize={"14px"}>{post.caption}</Typography>
-              </Stack>
-            )}
+            {post.caption && <Caption caption={post.caption} />}
 
-            {/* Comment Input Section */}
-            <section>
-              <Stack flexDirection={"row"} height={"40px"}>
-                <InputBase
-                  placeholder="Comment something.."
-                  onChange={(e) => setComment(e.target.value)}
-                  value={comment}
-                  sx={{
-                    fontSize: "14px",
-                    width: "100%",
-                  }}
-                />
-                <Button onClick={handleSendComment} size="small">
-                  <Typography
-                    fontSize={"12px"}
-                    textTransform={"capitalize"}
-                    fontWeight={"500"}
-                    color={COLORS.blue}
-                  >
-                    Post
-                  </Typography>
-                </Button>
-              </Stack>
-
-              {!showComment && (
-                <Typography
-                  onClick={handleShowComment}
-                  sx={{
-                    color: COLORS.dust,
-                    fontSize: "14px",
-                    cursor: "pointer",
-                  }}
-                >
-                  View all comments
-                </Typography>
-              )}
-            </section>
-
-            {/* Comment List */}
-            {showComment && (
-              <CommentWidget newComment={newComment} postId={post._id} />
-            )}
+            {/* Comment Section */}
+            <CommentInput postId={post._id} setShowComment={setShowComment} />
+            {showComment && <CommentWidget postId={post._id} />}
           </Box>
         </section>
-        <Divider sx={{ margin: "0 0 20px", padding: "0 0 16px" }} />
       </Stack>
     </Paper>
+  );
+};
+
+const Caption = ({ caption }: { caption: string }) => {
+  return (
+    <Stack direction={"row"} gap={"5px"}>
+      <img src={Quote} />
+      <Typography fontSize={"14px"}>{caption}</Typography>
+    </Stack>
   );
 };
 

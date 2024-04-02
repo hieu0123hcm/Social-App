@@ -11,7 +11,7 @@ import {
   useAppDispatch,
   useAppSelector,
 } from "../../custom-hook/useReduxHooks";
-import { setLogout } from "../../data/loginSlice";
+import { setLogout } from "../../redux/data/authSlice";
 import NameLink from "./NameLink";
 import { COLORS } from "../../constants/Constant";
 
@@ -37,7 +37,7 @@ const ProfileWidget = () => {
         size="large"
         sx={{
           "&:hover": {
-            color: COLORS.lime,
+            color: theme.palette.primary.main,
             bgcolor: COLORS.purewhite,
           },
           marginLeft: "10px",

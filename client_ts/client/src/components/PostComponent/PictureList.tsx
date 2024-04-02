@@ -48,6 +48,9 @@ const PictureList: React.FC<Props> = ({ picturePath }) => {
               src={`http://localhost:5000/post-images/${item}`}
               srcSet={`http://localhost:5000/post-images/${item}`}
               loading="lazy"
+              style={{
+                borderRadius: "15px",
+              }}
               onClick={() => {
                 setIsPictureModalOpen(true);
                 setItem(item);

@@ -1,12 +1,11 @@
 import Add from "@mui/icons-material/Add";
-import { Box, IconButton, Modal } from "@mui/material";
+import { Box, IconButton, Modal, useTheme } from "@mui/material";
 import React from "react";
 import CreatePost from "../../components/PostComponent/CreatePostModal";
 import { COLORS } from "../../constants/Constant";
 
 const PostCreateButton = () => {
-  // const user = useAppSelector((state) => state.auth.user);
-
+  const theme = useTheme();
   const [open, setOpen] = React.useState<boolean>(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -18,8 +17,15 @@ const PostCreateButton = () => {
         right: "20px",
       }}
     >
-      <IconButton sx={{ bgcolor: COLORS.lime }} onClick={handleOpen}>
-        <Add sx={{ color: COLORS.black }} />
+      <IconButton
+        color="primary"
+        sx={{
+          bgcolor: theme.palette.primary.main,
+          color: theme.palette.primary.contrastText,
+        }}
+        onClick={handleOpen}
+      >
+        <Add />
       </IconButton>
       <Modal open={open} onClose={handleClose}>
         <Box
@@ -27,7 +33,7 @@ const PostCreateButton = () => {
           top={"50%"}
           left={"50%"}
           sx={{
-            borderRadius: "0.4rem",
+            borderRadius: "30px",
             transform: "translate(-50%,-50%)",
             boxShadow: 24,
             background: COLORS.white,

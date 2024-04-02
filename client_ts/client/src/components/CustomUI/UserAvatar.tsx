@@ -18,8 +18,8 @@ const CustomAvatar = ({
     <Avatar
       sx={{
         cursor: "pointer",
-        width: "32px",
-        height: "32px",
+        width: "40px",
+        height: "40px",
         border: `1px solid ${COLORS.black}`,
       }}
       onClick={handleClick}

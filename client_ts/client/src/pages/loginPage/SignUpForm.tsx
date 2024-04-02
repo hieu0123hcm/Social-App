@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
+  Button,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -17,10 +18,9 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
-import { CustomButton } from "../../components/CustomUI/CustomButton";
 import TextFields from "../../components/CustomUI/TextFields";
 import Dropzone from "../../components/Dropzone/Dropzone";
-import { setLogin } from "../../data/loginSlice";
+import { setLogin } from "../../redux/data/authSlice";
 import { User } from "../../model/user.model";
 import { register } from "../../utils/api/register";
 
@@ -258,8 +258,9 @@ const SignupForm = () => {
                 handleChange={handleChange}
                 handleBlur={handleBlur}
               />
-
-              <CustomButton label="Sign Up" type="submit" />
+              <Button variant="contained" type="submit">
+                Sign Up
+              </Button>
             </Stack>
           </form>
         );

@@ -29,8 +29,12 @@ const postSchema = mongoose.Schema(
         default: [],
         type: new mongoose.Schema(
           {
-            userIdOfComment: String,
-            commentContent: String,
+            owner: {
+              _id: String,
+              username: String,
+              picturePath: String,
+            },
+            content: String,
           },
           { timestamps: true }
         ),

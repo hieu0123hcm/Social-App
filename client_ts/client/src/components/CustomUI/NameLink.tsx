@@ -16,8 +16,9 @@ const NameLink = ({ userId, name }: Props) => {
   return (
     <Box sx={{ cursor: "pointer" }} onClick={handleClick}>
       <Typography
+        component={"div"}
         color={"black"}
-        fontSize={"14px"}
+        fontSize={"16px"}
         fontWeight={"600"}
         textTransform={"capitalize"}
       >

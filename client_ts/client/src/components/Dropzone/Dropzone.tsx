@@ -1,11 +1,4 @@
-import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  Box,
-  IconButton,
-  ImageList,
-  ImageListItem,
-  Stack,
-} from "@mui/material";
+import { Box, ImageList, ImageListItem, Stack, useTheme } from "@mui/material";
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { COLORS } from "../../constants/Constant";
@@ -17,6 +10,7 @@ interface Props {
 }
 
 const Dropzone: React.FC<Props> = ({ image, setImage, multipleUpload }) => {
+  const theme = useTheme();
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       acceptedFiles.forEach((file) => {
@@ -99,29 +93,28 @@ const Dropzone: React.FC<Props> = ({ image, setImage, multipleUpload }) => {
           </ImageListItem>
         </ImageList>
       )}
-      <Stack flexDirection={"row"}>
-        <Box
-          {...getRootProps()}
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
-          border={`2px dashed ${COLORS.lime}`}
-          borderRadius={"0.7rem"}
-          width="100%"
-          bgcolor={COLORS.purewhite}
-          color={COLORS.black}
-          sx={{
-            "&:hover": {
-              cursor: "pointer",
-              border: `2px dashed ${COLORS.lime}`,
-              bgcolor: COLORS.lightgrey,
-            },
-          }}
-        >
-          <input {...getInputProps()} />
-          <span>Add Image Here</span>
-        </Box>
-        {image && (
+      <Box
+        {...getRootProps()}
+        display={"flex"}
+        justifyContent={"center"}
+        alignItems={"center"}
+        border={`1px dashed ${theme.palette.primary.main}`}
+        borderRadius={"0.7rem"}
+        width="100%"
+        height={"50px"}
+        bgcolor={theme.palette.grey[100]}
+        color={COLORS.black}
+        sx={{
+          "&:hover": {
+            cursor: "pointer",
+            bgcolor: theme.palette.grey[200],
+          },
+        }}
+      >
+        <input {...getInputProps()} />
+        <span>Add Image Here</span>
+      </Box>
+      {/* {image && (
           <IconButton
             onClick={() => setImage([])}
             sx={{
@@ -131,8 +124,7 @@ const Dropzone: React.FC<Props> = ({ image, setImage, multipleUpload }) => {
           >
             <DeleteIcon />
           </IconButton>
-        )}
-      </Stack>
+        )} */}
     </Stack>
   );
 };

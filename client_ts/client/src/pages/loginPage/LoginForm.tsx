@@ -1,18 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { IconButton, InputAdornment, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  IconButton,
+  InputAdornment,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Formik } from "formik";
-import Cookies from "js-cookie";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
-import { CustomButton } from "../../components/CustomUI/CustomButton";
 import TextFields from "../../components/CustomUI/TextFields";
 import { COLORS } from "../../constants/Constant";
-import { setLogin } from "../../data/loginSlice";
-import { APIResponse } from "../../model/response.model";
-import { UserResponse } from "../../model/user.model";
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../../custom-hook/useReduxHooks";
+import { login } from "../../redux/data/authSlice";
 
 const loginSchema = yup.object().shape({
   username: yup.string().required("required"),
@@ -30,14 +35,16 @@ const initialValuesLogin: ILoginForm = {
 };
 
 const LoginForm = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+
+  const loginError = useAppSelector((state) => state.auth.authError);
+  const loginLoading = useAppSelector((state) => state.auth.authLoading.login);
+  const message = useAppSelector((state) => state.auth.message);
 
   const [showPassword, setShowPassword] = React.useState(false);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
-
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -45,25 +52,11 @@ const LoginForm = () => {
   };
 
   const loginFormSubmit = async (values: ILoginForm, onSubmitProps: any) => {
-    //TODO: separate the components into different files  & use Axios
-    const loggedInResponse = await fetch("http://localhost:5000/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-
-    const loggedIn: APIResponse<UserResponse> = await loggedInResponse.json();
+    dispatch(login(values));
     onSubmitProps.resetForm();
-    if (loggedIn.success === false) {
-      setError(loggedIn.message);
+    if (loginError) {
       navigate("/");
     } else {
-      Cookies.set("token", loggedIn.data.token as string);
-      Cookies.set("user", JSON.stringify(loggedIn.data.user));
-      dispatch(
-        setLogin({ token: loggedIn.data.user, user: loggedIn.data.user })
-      );
-      setError("");
       navigate("/home");
     }
   };
@@ -83,9 +76,9 @@ const LoginForm = () => {
         handleSubmit,
       }) => (
         <form onSubmit={handleSubmit}>
-          {error && (
+          {loginError && (
             <Typography color={COLORS.bittersweet} mb={"20px"}>
-              {error}
+              {message}
             </Typography>
           )}
           <Stack gap={"25px"}>
@@ -120,7 +113,9 @@ const LoginForm = () => {
                 </InputAdornment>
               }
             />
-            <CustomButton label="Login" type="submit" />
+            <Button variant="contained" disabled={loginLoading} type="submit">
+              {loginLoading ? "Loading..." : "Login"}
+            </Button>
           </Stack>
         </form>
       )}

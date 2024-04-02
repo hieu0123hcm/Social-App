@@ -2,7 +2,17 @@ import Post from "../models/Post.js";
 import User from "../models/User.js";
 import { dataDeleter } from "../utils/dataDeleter.js";
 
-/**CREATE */
+/**
+ * Creates a new post.
+ *
+ * @param {Object} req - Express request object
+ * @param {string} req.body.userId - ID of user creating the post
+ * @param {string} req.body.caption - Caption for the post
+ * @param {string} req.body.picturePath - Path to image for the post
+ * @param {Object} res - Express response object
+ *
+ * @returns {Promise}
+ */
 export const createPost = async (req, res) => {
   try {
     const { userId, caption, picturePath } = req.body;
@@ -35,8 +45,18 @@ export const createPost = async (req, res) => {
   }
 };
 
-/** READ */
-export const getFeedPosts = async (req, res) => {
+/**
+ * Gets posts with pagination.
+ *
+ * @param {Object} req - Express request object
+ * @param {number} req.query.page - Page number
+ * @param {number} req.query.pageSize - Number of posts per page
+ * @param {Object} res - Express response object
+ *
+ * @returns {Promise} Promise that resolves to paginated posts
+ */
+export const getPosts = async (req, res) => {
+  console.log("vô đây");
   const page = +req.query.page || 1;
   const pageSize = +req.query.pageSize || 1;
   console.log(page, pageSize);
@@ -54,11 +74,13 @@ export const getFeedPosts = async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
-      return res.status(200).json({
-        success: true,
-        message: "Data found",
-        data: { posts: post, totalPosts: total },
-      });
+      setTimeout(() => {
+        return res.status(200).json({
+          success: true,
+          message: "Data found",
+          data: { posts: post, totalPosts: total },
+        });
+      }, 1000);
     } catch (error) {
       res.status(404).json({
         success: false,
@@ -68,23 +90,6 @@ export const getFeedPosts = async (req, res) => {
       });
     }
   }
-
-  // try {
-  //   const post = await Post.find().sort({ createdAt: -1 });
-  //   console.log(post);
-  //   res.status(200).json({
-  //     success: true,
-  //     message: "Data found",
-  //     data: { posts: post, totalPosts: total },
-  //   });
-  // } catch (error) {
-  //   res.status(404).json({
-  //     success: false,
-  //     message: error.message,
-  //     error_code: error.code,
-  //     data: {},
-  //   });
-  // }
 };
 
 export const getUserPosts = async (req, res) => {
@@ -134,6 +139,46 @@ export const getUserPosts = async (req, res) => {
   }
 };
 
+export const commentAPost = async (req, res) => {
+  function custom_sort(a, b) {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  }
+  try {
+    const { postId } = req.params;
+    const { userId, content } = req.body;
+
+    const user = await User.findById(userId);
+    const newComment = {
+      owner: {
+        _id: userId,
+        username: user.username,
+        picturePath: user.picturePath,
+      },
+      createdAt: new Date(),
+      content,
+    };
+
+    const post = await Post.findById(postId);
+    post.comments.push(newComment);
+    post.save();
+
+    setTimeout(() => {
+      res.json({
+        success: true,
+        message: "Comment created successfully",
+        data: { comments: [...post.comments.sort(custom_sort)], postId },
+      });
+    }, 1000);
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+      error_code: error.code,
+      data: {},
+    });
+  }
+};
+
 export const getPostComments = async (req, res) => {
   try {
     function custom_sort(a, b) {
@@ -142,42 +187,24 @@ export const getPostComments = async (req, res) => {
     const { postId } = req.params;
     const post = await Post.findById(postId);
 
-    const formattedComment = await Promise.all(
-      post.comments.map(async (comment) => {
-        try {
-          const { firstName, lastName, _id, picturePath } = await User.findById(
-            comment.userIdOfComment
-          );
-          console.log({
-            owner: {
-              _id,
-              firstName,
-              lastName,
-              picturePath,
-            },
-            comment: comment.commentContent,
-            createdAt: comment.createdAt,
-          });
+    const reponse = post.comments.map((comment) => {
+      return {
+        _id: comment._id,
 
-          return {
-            owner: {
-              _id,
-              firstName,
-              lastName,
-              picturePath,
-            },
-            comment: comment.commentContent,
-            createdAt: comment.createdAt,
-          };
-        } catch (error) {
-          return { ...item, error };
-        }
-      })
-    );
+        owner: {
+          _id: comment.owner._id,
+          username: comment.owner.username,
+          picturePath: comment.owner.picturePath,
+        },
+        content: comment.content,
+        createdAt: comment.createdAt,
+      };
+    });
+
     res.status(200).json({
       success: true,
       message: "Data found",
-      data: formattedComment.sort(custom_sort),
+      data: { comments: reponse.sort(custom_sort), postId },
     });
   } catch (error) {
     res.status(404).json({
@@ -214,39 +241,10 @@ export const likePost = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Updated successfully",
-      data: updatedPost.likes,
+      data: updatedPost,
     });
   } catch (error) {
     res.status(404).json({
-      success: false,
-      message: error.message,
-      error_code: error.code,
-      data: {},
-    });
-  }
-};
-
-export const commentAPost = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const { userId, content } = req.body;
-    const newComment = {
-      userIdOfComment: userId,
-      commentContent: content,
-    };
-
-    const post = await Post.findById(postId);
-    post.comments.push(newComment);
-
-    post.save();
-
-    res.json({
-      success: true,
-      message: "Comment created successfully",
-      data: post.comments,
-    });
-  } catch (error) {
-    res.json({
       success: false,
       message: error.message,
       error_code: error.code,

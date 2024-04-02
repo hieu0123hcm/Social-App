@@ -6,25 +6,17 @@ export const themeSettings = createTheme({
   },
   palette: {
     primary: {
-      light: "#cbf695",
-      main: "#bff47b",
-      dark: "#85aa56",
-      contrastText: "#010101",
+      light: "#85d391",
+      main: "#67c976",
+      dark: "#488c52",
+      contrastText: "#fff",
     },
-    secondary: {
-      light: "#f3f4ef",
-      main: "#f1f2ec",
-      dark: "#a8a9a5",
-      contrastText: "#010101",
-    },
-    error: {
-      light: "#f29194",
-      main: "#EF767A",
-      dark: "#a75255",
-      contrastText: "#456990",
-    },
-    background: {
-      default: "#fff",
+  },
+  components: {
+    MuiButton: {
+      defaultProps: {
+        size: "small",
+      },
     },
   },
 });

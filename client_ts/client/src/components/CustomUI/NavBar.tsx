@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import SocialDistanceIcon from "@mui/icons-material/PeopleAltOutlined";
 
-import { AppBar, Box, Stack, Typography } from "@mui/material";
+import { AppBar, Box, Stack } from "@mui/material";
 import { useSelector } from "react-redux";
 import { COLORS } from "../../constants/Constant";
 import ProfileWidget from "./ProfileWidget";
@@ -39,12 +39,7 @@ const NavBar = () => {
               fontSize="large"
               sx={{ color: COLORS.black, marginRight: "10px" }}
             />
-            <Typography color={COLORS.black} fontWeight={600}>
-              Our
-            </Typography>
-            <Typography color={COLORS.black} fontWeight={600}>
-              Society
-            </Typography>
+            Our Society
           </Stack>
         </Box>
 

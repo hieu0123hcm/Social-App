@@ -2,7 +2,24 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-/* REGISTER USER */
+/**
+ * Registers a new user.
+ *
+ * @param {Object} req - Express request object
+ * @param {string} req.body.firstName - User's first name
+ * @param {string} req.body.lastName - User's last name
+ * @param {string} req.body.username - User's username
+ * @param {string} req.body.email - User's email
+ * @param {string} req.body.password - User's password
+ * @param {string} req.body.picturePath - Path to user's profile picture
+ * @param {Array} req.body.friends - User's friends
+ * @param {string} req.body.location - User's location
+ * @param {string} req.body.occupation - User's occupation
+ * @param {string} req.body.gender - User's gender
+ *
+ * @param {Object} res - Express response object
+ * @returns {Promise}
+ */
 export const register = async (req, res) => {
   try {
     const {
@@ -19,13 +36,9 @@ export const register = async (req, res) => {
     } = req.body;
     const existed = await User.findOne({ email: email });
 
-    if (existed)
-      return res.status(403).json({
-        success: false,
-        message: "User already exists",
-        error_code: 403,
-        data: {},
-      });
+    if (existed) {
+      throw new Error("User already exists");
+    }
 
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
@@ -54,40 +67,35 @@ export const register = async (req, res) => {
       data: { token, user: savedUser },
     });
   } catch (error) {
-    res.json({
-      success: false,
-      message: error.message,
-      error_code: error.code,
-      data: {},
-    });
+    throw new Error({ message: error.message });
   }
 };
 
-/* LOGGING IN */
+/**
+ * Logs a user in.
+ *
+ * @param {Object} req - Express request object
+ * @param {string} req.body.username - The username entered by the user
+ * @param {string} req.body.password - The password entered by the user
+ *
+ * @param {Object} res - Express response object
+ *
+ * Finds the user with the entered username.
+ * Checks if the entered password matches the user's password.
+ * If valid, returns a JWT token and the user object without the password.
+ * If invalid credentials, returns an error.
+ */
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
+
+    //Check if user exists
     const user = await User.findOne({ username: username });
+    if (!user) throw new Error("User not found");
 
-    if (!user) {
-      return res.json({
-        success: false,
-        message: "User not found",
-        error_code: 1301,
-        data: {},
-      });
-    }
-
+    //Check if password is match
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log(isMatch);
-
-    if (!isMatch)
-      return res.json({
-        success: false,
-        message: "Invalid credentials. ",
-        error_code: 1308,
-        data: {},
-      });
+    if (!isMatch) throw new Error("Invalid credentials");
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_KEY);
 

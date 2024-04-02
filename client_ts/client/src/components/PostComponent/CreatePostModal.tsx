@@ -1,12 +1,18 @@
-import { Divider, Stack, TextField, Typography, useTheme } from "@mui/material";
+import {
+  Button,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { COLORS, LABEL } from "../../constants/Constant";
 import {
   useAppDispatch,
   useAppSelector,
 } from "../../custom-hook/useReduxHooks";
-import { createPost } from "../../data/postsSlice";
-import { CustomButton } from "../CustomUI/CustomButton";
+import { createPost } from "../../redux/data/postsSlice";
 import NameLink from "../CustomUI/NameLink";
 import CustomAvatar from "../CustomUI/UserAvatar";
 import Dropzone from "../Dropzone/Dropzone";
@@ -20,7 +26,7 @@ const CreatePost: React.FC<Props> = ({ handleClose }) => {
 
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
-
+  const token = useAppSelector((state) => state.auth.token);
   const [image, setImage] = useState<File[]>([]);
   const [postCaption, setPostCaption] = useState<string>("");
   const [isButtonActive, setIsButtonActive] = useState(true);
@@ -40,7 +46,7 @@ const CreatePost: React.FC<Props> = ({ handleClose }) => {
   };
 
   const handleUploadPost = async () => {
-    dispatch(createPost({ user, postCaption, image }));
+    dispatch(createPost({ user, postCaption, image, token }));
     resetFields();
   };
 
@@ -50,6 +56,7 @@ const CreatePost: React.FC<Props> = ({ handleClose }) => {
         [theme.breakpoints.between("xs", "md")]: { width: "80vw" },
         p: "15px",
       }}
+      borderRadius="30px"
       gap={"15px"}
       width={"40vw"}
       bgcolor={theme.palette.background.default}
@@ -94,12 +101,15 @@ const CreatePost: React.FC<Props> = ({ handleClose }) => {
 
       <Divider sx={{ color: COLORS.purewhite }} />
 
-      <Stack alignItems={"end"}>
-        <CustomButton
-          label={LABEL.POST_BUTTON_LABEL}
-          handleClick={handleUploadPost}
+      <Stack justifyContent={"end"} direction={"row"} gap={"10px"}>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button
+          variant="contained"
+          onClick={handleUploadPost}
           disabled={isButtonActive}
-        />
+        >
+          {LABEL.POST_BUTTON_LABEL}
+        </Button>
       </Stack>
     </Stack>
   );

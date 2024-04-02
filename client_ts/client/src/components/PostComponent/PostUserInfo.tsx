@@ -17,7 +17,7 @@ const PostUserInfo = ({
       <Tooltip title={createdAt.toDateString().toString()}>
         <Typography
           component="div"
-          fontSize={"12px"}
+          fontSize={"10px"}
           fontWeight={"300"}
           color={"grey"}
         >

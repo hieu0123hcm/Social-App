@@ -1,5 +1,5 @@
 import { Box, ThemeProvider } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { themeSettings } from "./utils/theme";
@@ -15,10 +15,11 @@ import "@fontsource/poppins/800.css";
 import "@fontsource/poppins/900.css";
 import Cookies from "js-cookie";
 import NavBar from "./components/CustomUI/NavBar";
-import { setLogin } from "./data/loginSlice";
+import { useAppSelector } from "./custom-hook/useReduxHooks";
 import LoginPage from "./pages/loginPage";
 import Main from "./pages/mainPage/Main";
 import Profile from "./pages/profilePage";
+import { setLogin } from "./redux/data/authSlice";
 import ScrollToTop from "./utils/scrollToTop";
 
 const App = () => {
@@ -32,15 +33,15 @@ const App = () => {
     dispatch(setLogin({ token: tokenFromCookies, user: userFromCookies }));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isAuth = Boolean(useSelector((state: any) => state.auth.token));
+  const token = useAppSelector((state) => state.auth.token);
+  const isAuth = Boolean(token);
 
   return (
     <ThemeProvider theme={themeSettings}>
       <BrowserRouter>
         <ScrollToTop />
 
-        <Box>
+        <Box bgcolor={"#fbfcfd"}>
           <NavBar />
           <Box width={"100%"} display={"flex"} justifyContent={"center"}>
             <Routes>
