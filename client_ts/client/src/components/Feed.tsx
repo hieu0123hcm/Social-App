@@ -21,7 +21,7 @@ const PostsFeed = () => {
   } = useAppSelector((state) => state.posts.postItems);
   const token = useAppSelector((state) => state.auth.token);
   const postsError = useAppSelector((state) => state.posts.postsError);
-
+  const loading = useAppSelector((state) => state.posts.postsLoading.getPosts);
   const message = useAppSelector((state) => state.posts.message);
 
   const initFetch = useCallback(() => {
@@ -42,6 +42,8 @@ const PostsFeed = () => {
     <Stack>
       {postsError ? (
         <Error message={message} />
+      ) : loading && items.length === 0 ? (
+        <Spinner />
       ) : items.length === 0 ? (
         <CaughtUp />
       ) : (
