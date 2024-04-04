@@ -1,7 +1,15 @@
-import { Box, ImageList, ImageListItem, Stack, useTheme } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  ImageList,
+  ImageListItem,
+  Stack,
+  useTheme,
+} from "@mui/material";
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { COLORS } from "../../constants/Constant";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface Props {
   image: File[];
@@ -82,13 +90,37 @@ const Dropzone: React.FC<Props> = ({ image, setImage, multipleUpload }) => {
             }}
           >
             {image.map((item, index) => (
-              <img
-                key={index}
-                src={URL.createObjectURL(item)}
-                alt={item.name}
-                loading="lazy"
-                style={{ height: "160px", borderRadius: "0.7rem" }}
-              />
+              <div style={{ position: "relative" }}>
+                <img
+                  key={index}
+                  src={URL.createObjectURL(item)}
+                  alt={item.name}
+                  loading="lazy"
+                  style={{
+                    height: "160px",
+                    borderRadius: "0.7rem",
+                  }}
+                />
+                <IconButton
+                  onClick={() =>
+                    setImage(image.filter((_item, i) => i !== index))
+                  }
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    zIndex: 1,
+                    right: "0px",
+                    color: theme.palette.primary.dark,
+                    ":hover": {
+                      color: theme.palette.primary.main,
+                      bgcolor: "rgba(100, 100, 100, 0.5)",
+                    },
+                    bgcolor: "rgba(100, 100, 100, 0.5)",
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </div>
             ))}
           </ImageListItem>
         </ImageList>

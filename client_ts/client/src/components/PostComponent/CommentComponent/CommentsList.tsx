@@ -31,6 +31,7 @@ const CommentWidget = ({ postId }: IProps) => {
   const getCommentLoading = useAppSelector((state) =>
     selectGetCommentLoading(state, postId)
   );
+
   const commentList = useAppSelector((state) => selectComment(state, postId));
   useEffect(() => {
     const initFetch = () => {

@@ -214,6 +214,9 @@ export const postsSlice = createSlice({
         state.postsLoading.createPost = false;
         state.postSuccess = true;
         state.postItems.items.unshift(action.payload);
+
+        state.postsLoading.commentPost[action.payload._id] = false;
+        state.postsLoading.getComment[action.payload._id] = false;
       })
       .addCase(createPost.rejected, (state, action) => {
         state.postsLoading.createPost = false;
@@ -232,7 +235,6 @@ export const postsSlice = createSlice({
         state.postItems.items = state.postItems.items.filter(
           (item) => item._id !== action.payload._id
         );
-        console.log(state.postItems.items);
       })
       .addCase(removePost.rejected, (state, action) => {
         state.postsLoading.removePost = false;
@@ -289,8 +291,9 @@ export const postsSlice = createSlice({
         state.postsLoading.getComment[postId] = true;
       })
       .addCase(getComment.fulfilled, (state, action) => {
+        const postId = action.meta.arg.postId;
+
         if (action.payload.comments.length !== 0) {
-          const postId = action.payload.postId;
           const comments = action.payload.comments;
           const post = state.postItems.items.find(
             (post) => post._id === postId
@@ -298,6 +301,9 @@ export const postsSlice = createSlice({
           if (post) {
             post.comments = [...comments];
           }
+
+          state.postsLoading.getComment[postId] = false;
+        } else {
           state.postsLoading.getComment[postId] = false;
         }
       })

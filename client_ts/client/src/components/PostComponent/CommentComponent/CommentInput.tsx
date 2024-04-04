@@ -1,5 +1,6 @@
-import { InputBase, Stack, Tooltip } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { InputBase, Stack, Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
   useAppDispatch,
@@ -9,7 +10,6 @@ import {
   selectCommentLoading,
   sendComment,
 } from "../../../redux/data/postsSlice";
-import SendIcon from "@mui/icons-material/Send";
 interface IProps {
   postId: string;
   setShowComment: React.Dispatch<React.SetStateAction<boolean>>;
@@ -40,6 +40,7 @@ const CommentInput = ({ postId, setShowComment }: IProps) => {
     };
 
     const handleSendComment = async () => {
+      console.log("test");
       if (comment !== "" && user) {
         dispatch(
           sendComment({
@@ -68,20 +69,18 @@ const CommentInput = ({ postId, setShowComment }: IProps) => {
           }}
         />
         <Tooltip title="Please input before send">
-          <span>
-            <LoadingButton
-              onClick={handleSendComment}
-              loading={commentLoading} // Removed selectCommentLoading() since it is not defined
-              endIcon={<SendIcon />}
-              variant="text"
-              size="small"
-              color="primary"
-              loadingPosition="end"
-              disabled={sendButtonDisable}
-            >
-              Send
-            </LoadingButton>
-          </span>
+          <LoadingButton
+            onClick={handleSendComment}
+            loading={commentLoading}
+            endIcon={<SendIcon />}
+            variant="text"
+            size="small"
+            color="primary"
+            loadingPosition="end"
+            disabled={sendButtonDisable}
+          >
+            Send
+          </LoadingButton>
         </Tooltip>
       </Stack>
     );
