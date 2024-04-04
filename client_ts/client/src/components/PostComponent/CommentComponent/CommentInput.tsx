@@ -69,18 +69,20 @@ const CommentInput = ({ postId, setShowComment }: IProps) => {
           }}
         />
         <Tooltip title="Please input before send">
-          <LoadingButton
-            onClick={handleSendComment}
-            loading={commentLoading}
-            endIcon={<SendIcon />}
-            variant="text"
-            size="small"
-            color="primary"
-            loadingPosition="end"
-            disabled={sendButtonDisable}
-          >
-            Send
-          </LoadingButton>
+          <span>
+            <LoadingButton
+              onClick={handleSendComment}
+              loading={commentLoading}
+              endIcon={<SendIcon />}
+              variant="text"
+              size="small"
+              color="primary"
+              loadingPosition="end"
+              disabled={sendButtonDisable}
+            >
+              Send
+            </LoadingButton>
+          </span>
         </Tooltip>
       </Stack>
     );
