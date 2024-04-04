@@ -5,7 +5,11 @@ import {
   useAppSelector,
 } from "../../../custom-hook/useReduxHooks";
 import { Comment } from "../../../model/comment.model";
-import { getComment, selectComment } from "../../../redux/data/postsSlice";
+import {
+  getComment,
+  selectComment,
+  selectGetCommentLoading,
+} from "../../../redux/data/postsSlice";
 import Error from "../../CustomUI/Error";
 import Spinner from "../../CustomUI/Spinner";
 import CommentItem from "./CommentItem";
@@ -24,8 +28,8 @@ const CommentWidget = ({ postId }: IProps) => {
   const dispatch = useAppDispatch();
   const error = useAppSelector((state) => state.posts.postsError);
   const message = useAppSelector((state) => state.posts.message);
-  const commentLoading = useAppSelector(
-    (state) => state.posts.postsLoading.getComment
+  const getCommentLoading = useAppSelector((state) =>
+    selectGetCommentLoading(state, postId)
   );
   const commentList = useAppSelector((state) => selectComment(state, postId));
   useEffect(() => {
@@ -60,7 +64,7 @@ const CommentWidget = ({ postId }: IProps) => {
   return (
     <>
       {error && <Error message={message} />}
-      {commentLoading ? (
+      {getCommentLoading ? (
         <Spinner />
       ) : (
         <>

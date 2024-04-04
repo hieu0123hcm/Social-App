@@ -41,7 +41,7 @@ const App = () => {
       <BrowserRouter>
         <ScrollToTop />
 
-        <Box bgcolor={"#fbfcfd"}>
+        <Box bgcolor={"#fbfcfd"} minHeight={"100vh"}>
           <NavBar />
           <Box width={"100%"} display={"flex"} justifyContent={"center"}>
             <Routes>

@@ -21,9 +21,14 @@ interface postsState {
     getPosts: boolean;
     createPost: boolean;
     likePost: boolean;
-    commentPost: boolean;
     removePost: boolean;
-    getComment: boolean;
+
+    commentPost: {
+      [postId: string]: boolean;
+    };
+    getComment: {
+      [postId: string]: boolean;
+    };
   };
   postSuccess: boolean;
   message: string | undefined;
@@ -38,11 +43,11 @@ const initialState: postsState = {
   },
   postsError: false,
   postsLoading: {
-    getComment: false,
+    getComment: {},
     getPosts: false,
     createPost: false,
     likePost: false,
-    commentPost: false,
+    commentPost: {},
     removePost: false,
   },
   postSuccess: false,
@@ -185,6 +190,12 @@ export const postsSlice = createSlice({
         state.postsLoading.getPosts = false;
         state.postSuccess = true;
         state.postItems.items.push(...action.payload.posts);
+
+        action.payload.posts.forEach((post) => {
+          state.postsLoading.commentPost[post._id] = false;
+          state.postsLoading.getComment[post._id] = false;
+        });
+
         state.postItems.count = +action.payload.totalPosts;
         state.postItems.page++;
       })
@@ -252,8 +263,9 @@ export const postsSlice = createSlice({
 
     //Send Comment
     builder
-      .addCase(sendComment.pending, (state) => {
-        state.postsLoading.commentPost = true;
+      .addCase(sendComment.pending, (state, action) => {
+        const postId = action.meta.arg.postId;
+        state.postsLoading.commentPost[postId] = true;
       })
       .addCase(sendComment.fulfilled, (state, action) => {
         const postId = action.payload.postId;
@@ -262,17 +274,19 @@ export const postsSlice = createSlice({
         if (post) {
           post.comments = [...comments];
         }
-        state.postsLoading.commentPost = false;
+        state.postsLoading.commentPost[postId] = false;
       })
       .addCase(sendComment.rejected, (state, action) => {
-        state.postsLoading.commentPost = false;
+        const postId = action.meta.arg.postId;
+        state.postsLoading.commentPost[postId] = false;
         state.postsError = true;
         state.message = action.error.message;
       });
 
     builder
-      .addCase(getComment.pending, (state) => {
-        state.postsLoading.getComment = true;
+      .addCase(getComment.pending, (state, action) => {
+        const postId = action.meta.arg.postId;
+        state.postsLoading.getComment[postId] = true;
       })
       .addCase(getComment.fulfilled, (state, action) => {
         if (action.payload.comments.length !== 0) {
@@ -284,11 +298,12 @@ export const postsSlice = createSlice({
           if (post) {
             post.comments = [...comments];
           }
+          state.postsLoading.getComment[postId] = false;
         }
-        state.postsLoading.getComment = false;
       })
       .addCase(getComment.rejected, (state, action) => {
-        state.postsLoading.getComment = false;
+        const postId = action.meta.arg.postId;
+        state.postsLoading.getComment[postId] = false;
         state.postsError = true;
         state.message = action.error.message;
       });
@@ -303,6 +318,14 @@ export const selectPostsLoading = (state: RootState) =>
 export const selectPostSuccess = (state: RootState) => state.posts.postSuccess;
 
 export const selectMessage = (state: RootState) => state.posts.message;
+
+export const selectCommentLoading = (state: RootState, postId: string) => {
+  return state.posts.postsLoading.commentPost[postId];
+};
+
+export const selectGetCommentLoading = (state: RootState, postId: string) => {
+  return state.posts.postsLoading.getComment[postId];
+};
 
 export const selectComment = (state: RootState, postId: string) => {
   const post = state.posts.postItems.items.find((post) => post._id === postId);

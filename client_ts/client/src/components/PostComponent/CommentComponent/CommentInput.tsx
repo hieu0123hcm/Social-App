@@ -1,11 +1,14 @@
-import { InputBase, Stack } from "@mui/material";
+import { InputBase, Stack, Tooltip } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import React from "react";
+import { useEffect, useState } from "react";
 import {
   useAppDispatch,
   useAppSelector,
 } from "../../../custom-hook/useReduxHooks";
-import { sendComment } from "../../../redux/data/postsSlice";
+import {
+  selectCommentLoading,
+  sendComment,
+} from "../../../redux/data/postsSlice";
 import SendIcon from "@mui/icons-material/Send";
 interface IProps {
   postId: string;
@@ -14,14 +17,23 @@ interface IProps {
 
 const CommentInput = ({ postId, setShowComment }: IProps) => {
   {
-    const [comment, setComment] = React.useState("");
+    const [comment, setComment] = useState("");
     const user = useAppSelector((state) => state.auth.user);
     const token = useAppSelector((state) => state.auth.token);
-    //TODO: Sửa lại loading riêng cho từng post
-    const loading = useAppSelector(
-      (state) => state.posts.postsLoading.commentPost
-    );
     const dispatch = useAppDispatch();
+    const commentLoading = useAppSelector((state) =>
+      selectCommentLoading(state, postId)
+    );
+
+    const [sendButtonDisable, setSendButtonDisable] = useState(true);
+
+    useEffect(() => {
+      if (comment.length > 0) {
+        setSendButtonDisable(false);
+      } else {
+        setSendButtonDisable(true);
+      }
+    }, [comment]);
 
     const refreshInput = () => {
       setComment("");
@@ -55,17 +67,22 @@ const CommentInput = ({ postId, setShowComment }: IProps) => {
             width: "100%",
           }}
         />
-        <LoadingButton
-          onClick={handleSendComment}
-          loading={loading}
-          endIcon={<SendIcon />}
-          variant="contained"
-          size="small"
-          color="primary"
-          loadingPosition="end"
-        >
-          Send
-        </LoadingButton>
+        <Tooltip title="Please input before send">
+          <span>
+            <LoadingButton
+              onClick={handleSendComment}
+              loading={commentLoading} // Removed selectCommentLoading() since it is not defined
+              endIcon={<SendIcon />}
+              variant="text"
+              size="small"
+              color="primary"
+              loadingPosition="end"
+              disabled={sendButtonDisable}
+            >
+              Send
+            </LoadingButton>
+          </span>
+        </Tooltip>
       </Stack>
     );
   }
