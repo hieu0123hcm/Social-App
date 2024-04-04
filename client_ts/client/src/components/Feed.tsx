@@ -42,6 +42,8 @@ const PostsFeed = () => {
     <Stack>
       {postsError ? (
         <Error message={message} />
+      ) : items.length === 0 ? (
+        <CaughtUp />
       ) : (
         <InfiniteScroll
           dataLength={items.length}

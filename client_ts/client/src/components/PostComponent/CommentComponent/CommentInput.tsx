@@ -17,6 +17,7 @@ const CommentInput = ({ postId, setShowComment }: IProps) => {
     const [comment, setComment] = React.useState("");
     const user = useAppSelector((state) => state.auth.user);
     const token = useAppSelector((state) => state.auth.token);
+    //TODO: Sửa lại loading riêng cho từng post
     const loading = useAppSelector(
       (state) => state.posts.postsLoading.commentPost
     );
