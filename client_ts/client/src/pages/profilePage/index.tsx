@@ -12,6 +12,7 @@ const Profile = () => {
   return (
     <Stack
       sx={{
+        width: "70%",
         [theme.breakpoints.between("xs", "sm")]: {
           ml: "0px",
           direction: "column",
